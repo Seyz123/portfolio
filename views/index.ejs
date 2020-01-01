@@ -1,0 +1,153 @@
+<!DOCTYPE html><html lang="fr"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title><%= user.login %></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/magic-grid/dist/magic-grid.min.js"></script>
+    <link rel="stylesheet" href="index.css">
+    <link rel="icon" href="<%= user.avatar_url %>" type="image/png"></head>
+    <style>
+        :root {
+            --bg-color: rgb(10, 10, 10);
+            --text-color: #fff;
+            --blog-gray-color: rgb(180, 180, 180);
+            --background-image: linear-gradient(
+            90deg,
+            rgba(10, 10, 10, 0.3),
+            rgb(10, 10, 10, 1)
+            ),
+            url(<%= config.background %>);
+            --background-background: linear-gradient
+            0deg,
+            rgba(10, 10, 10, 1),
+            rgba(10, 10, 10, 0.6)
+            ),
+            url(<%= config.background %>) center center fixed;
+            --height: 50vh;
+        }
+        
+        @media (max-width: 800px) {
+            :root {
+                --background-image: linear-gradient(
+                0deg,
+                rgba(10, 10, 10, 1),
+                rgba(10, 10, 10, 0)
+                ),
+                url(<%= config.background %>) !important;
+            }
+        }
+    </style>
+  <body>
+    <div id="loading">
+      <div id="spinner"></div>
+    </div>
+    <div id="profile">
+      <div id="profile_img" style="background: url(<%= user.avatar_url %>) center;"></div>
+      <div id="username"><span style="display:block;"><%= user.username %></span><a href="<%= user.html_url %>">@<%= user.login %></a></div>
+      <div id="userbio" style="display: block;"><%= user.bio %></div>
+      <div id="about">
+                <span style="display:none;"><i class="fas fa-users"></i> &nbsp; null</span>
+                <span style="display:none;"><i class="fas fa-envelope"></i> &nbsp; null</span>
+                <span style="display:none;"><i class="fas fa-link"></i> &nbsp; <a href=""></a></span>
+                <span style="display:block;"><i class="fas fa-map-marker-alt"></i> &nbsp; <%= user.location %></span>
+                <span style="display:none;"><i class="fas fa-user-tie"></i> &nbsp;&nbsp; Available for hire</span>
+                </div>
+    </div>
+    <div id="display">
+      <div id="work">
+        <h1>Projects.</h1>
+        <div class="projects" id="work_section">
+            <% if(error) { %>
+                <h1>An error occured while resolving user repos.</h1>
+            <% } else { %>
+                <% repos.forEach(repo => { %>
+                    <% if(!repo.fork) { %>
+                        <a href="<%= repo.html_url %>" target="_blank">
+                            <section>
+                                <div class="section_title"><%= repo.name %></div>
+                                <div class="about_section">
+                                    <span style="display:block;"><%= repo.description || "None" %></span>
+                                </div>
+                                <div class="bottom_section">
+                                    <span style="display:inline-block;"><i class="fas fa-code"></i>&nbsp; <%= repo.language || "Unknown" %></span>
+                                </div>
+                            </section>
+                        </a>
+                        <% } %>
+                    <% }); %>
+                <% } %>
+                </div>
+            </div>
+      <div id="forks">
+        <h1>Forks.</h1>
+        <div class="projects" id="forks_section">
+            <% if(error) { %>
+                <h1>An error occured while resolving user repos.</h1>
+            <% } else { %>
+                <% repos.forEach(repo => { %>
+                    <% if(repo.fork) { %>
+                        <a href="<%= repo.html_url %>" target="_blank">
+                            <section>
+                                <div class="section_title"><%= repo.name %></div>
+                                <div class="about_section">
+                                    <span style="display:block;"><%= repo.description || "None" %></span>
+                                </div>
+                                <div class="bottom_section">
+                                    <span style="display:inline-block;"><i class="fas fa-code"></i>&nbsp; <%= repo.language || "Unknown" %></span>
+                                </div>
+                            </section>
+                        </a>
+                        <% } %>
+                    <% }); %>
+                <% } %>
+        </div>
+      </div>
+      <div id="footer">
+        <a href="https://github.com/imfunniee" target="_blank">Based on imfunniee's gitfolio</a>
+      </div>
+    </div>
+    <script type="text/javascript">
+      setTimeout(function() {
+        document.getElementById("loading").classList.add("animated");
+        document.getElementById("loading").classList.add("fadeOut");
+        setTimeout(function() {
+          document.getElementById("loading").classList.remove("animated");
+          document.getElementById("loading").classList.remove("fadeOut");
+          document.getElementById("loading").style.display = "none";
+        }, 800);
+      }, 1500);
+      <% if(!config.forks) { %>
+        document.getElementById("forks").style.display = "none";
+      <% } %>
+        
+      const magicProjectsGrid = new MagicGrid({
+        container: "#work_section",
+        animate: false,
+        gutter: 30,
+        static: true,
+        useMin: false,
+        maxColumns: 2,
+        useTransform: true
+      });
+
+      const magicForksGrid = new MagicGrid({
+        container: "#forks_section",
+        animate: false,
+        gutter: 30,
+        static: true,
+        useMin: false,
+        maxColumns: 2,
+        useTransform: true
+      });
+
+      $("document").ready(() => {
+        magicProjectsGrid.listen();
+        magicForksGrid.listen();
+      });
+    </script>
+  
+
+</body></html>
